@@ -22,3 +22,4 @@ export default abstract class ITodoApi extends IApi {
 
   abstract deleteTodo(params: DeleteTodoParams): Promise<DeleteTodoResult>;
 }
+

@@ -15,14 +15,12 @@ import ITodoApi from './ITodoApi';
 export default class TodoApi extends ITodoApi {
   async getTodos(): Promise<GetTodosResult> {
     try {
-      const response = await this.get('/todos');
+      const response = await this.get<unknown[]>('/todos');
 
       return {
         success: true,
         message: null,
-        data: (response.data as unknown[]).map((item: unknown) =>
-          TodoEntity.fromJson(item),
-        ),
+        data: response.data.map((item) => TodoEntity.fromJson(item)),
       };
     } catch (e) {
       return {
@@ -35,7 +33,7 @@ export default class TodoApi extends ITodoApi {
 
   async getTodoById(params: GetTodoByIdParams): Promise<GetTodoByIdResult> {
     try {
-      const response = await this.get(`/todos/${params.id}`);
+      const response = await this.get<unknown>(`/todos/${params.id}`);
 
       return {
         success: true,
@@ -53,11 +51,9 @@ export default class TodoApi extends ITodoApi {
 
   async createTodo(params: CreateTodoParams): Promise<CreateTodoResult> {
     try {
-      const response = await this.post('/todos', {
+      const response = await this.post<unknown>('/todos', {
         title: params.title,
         description: params.description ?? null,
-        due_date: params.dueDate ?? null,
-        tag_ids: params.tagIds ?? [],
       });
 
       return {
@@ -76,15 +72,21 @@ export default class TodoApi extends ITodoApi {
 
   async updateTodo(params: UpdateTodoParams): Promise<UpdateTodoResult> {
     try {
-      const body: Record<string, unknown> = {};
+      const payload: Record<string, unknown> = {};
 
-      if (params.title !== undefined) body.title = params.title;
-      if (params.description !== undefined) body.description = params.description;
-      if (params.isCompleted !== undefined) body.is_completed = params.isCompleted;
-      if (params.dueDate !== undefined) body.due_date = params.dueDate;
-      if (params.tagIds !== undefined) body.tag_ids = params.tagIds;
+      if (params.title !== undefined) {
+        payload.title = params.title;
+      }
 
-      const response = await this.put(`/todos/${params.id}`, body);
+      if (params.description !== undefined) {
+        payload.description = params.description;
+      }
+
+      if (params.isCompleted !== undefined) {
+        payload.is_completed = params.isCompleted;
+      }
+
+      const response = await this.put<unknown>(`/todos/${params.id}`, payload);
 
       return {
         success: true,
@@ -116,3 +118,4 @@ export default class TodoApi extends ITodoApi {
     }
   }
 }
+

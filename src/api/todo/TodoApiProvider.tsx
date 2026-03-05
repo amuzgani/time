@@ -19,5 +19,10 @@ export default function TodoApiProvider({
     return new TodoApi('/api');
   }, []);
 
-  return <TodoApiContext.Provider value={api}>{children}</TodoApiContext.Provider>;
+  return (
+    <TodoApiContext.Provider value={api}>
+      {children}
+    </TodoApiContext.Provider>
+  );
 }
+

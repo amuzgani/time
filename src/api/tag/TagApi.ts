@@ -15,14 +15,12 @@ import ITagApi from './ITagApi';
 export default class TagApi extends ITagApi {
   async getTags(): Promise<GetTagsResult> {
     try {
-      const response = await this.get('/tags');
+      const response = await this.get<unknown[]>('/tags');
 
       return {
         success: true,
         message: null,
-        data: (response.data as unknown[]).map((item: unknown) =>
-          TagEntity.fromJson(item),
-        ),
+        data: response.data.map((item) => TagEntity.fromJson(item)),
       };
     } catch (e) {
       return {
@@ -35,7 +33,7 @@ export default class TagApi extends ITagApi {
 
   async getTagById(params: GetTagByIdParams): Promise<GetTagByIdResult> {
     try {
-      const response = await this.get(`/tags/${params.id}`);
+      const response = await this.get<unknown>(`/tags/${params.id}`);
 
       return {
         success: true,
@@ -53,7 +51,7 @@ export default class TagApi extends ITagApi {
 
   async createTag(params: CreateTagParams): Promise<CreateTagResult> {
     try {
-      const response = await this.post('/tags', {
+      const response = await this.post<unknown>('/tags', {
         name: params.name,
         color: params.color,
       });
@@ -74,12 +72,10 @@ export default class TagApi extends ITagApi {
 
   async updateTag(params: UpdateTagParams): Promise<UpdateTagResult> {
     try {
-      const body: Record<string, unknown> = {};
-
-      if (params.name !== undefined) body.name = params.name;
-      if (params.color !== undefined) body.color = params.color;
-
-      const response = await this.put(`/tags/${params.id}`, body);
+      const response = await this.put<unknown>(`/tags/${params.id}`, {
+        name: params.name,
+        color: params.color,
+      });
 
       return {
         success: true,
@@ -111,3 +107,4 @@ export default class TagApi extends ITagApi {
     }
   }
 }
+

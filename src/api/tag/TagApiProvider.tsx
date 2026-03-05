@@ -19,5 +19,10 @@ export default function TagApiProvider({
     return new TagApi('/api');
   }, []);
 
-  return <TagApiContext.Provider value={api}>{children}</TagApiContext.Provider>;
+  return (
+    <TagApiContext.Provider value={api}>
+      {children}
+    </TagApiContext.Provider>
+  );
 }
+

@@ -119,4 +119,3 @@ yarn storybook
 - API 응답은 반드시 `Entity.fromJson()`을 통해 Entity로 변환한 뒤 사용합니다.
 - View는 Controller 훅이 제공하는 ViewModel과 상태/콜백에만 의존합니다.
 - 변경 시에는 가능하면 `yarn lint`, `yarn typecheck`, `yarn test`를 통해 기본 검증을 수행합니다.
-

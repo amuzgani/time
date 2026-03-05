@@ -45,28 +45,31 @@ export default function useTagDetailController(
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchTag = useCallback(async (nextState: LoadState): Promise<void> => {
-    setLoadState(nextState);
-    if (nextState !== LOAD_STATES.IDLE) {
-      setErrorMessage(null);
-    }
-
-    try {
-      const result = await api.getTagById({ id: params.id });
-
-      if (result.success && result.data) {
-        const model = createTagViewModel(result.data);
-        dispatch(upsertTag(toTagStateItem(model)));
+  const fetchTag = useCallback(
+    async (nextState: LoadState): Promise<void> => {
+      setLoadState(nextState);
+      if (nextState !== LOAD_STATES.IDLE) {
         setErrorMessage(null);
-      } else {
-        setErrorMessage(result.message ?? '태그를 불러오는 중 오류가 발생했습니다.');
       }
-    } catch {
-      setErrorMessage('태그를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setLoadState(LOAD_STATES.IDLE);
-    }
-  }, [api, dispatch, params.id]);
+
+      try {
+        const result = await api.getTagById({ id: params.id });
+
+        if (result.success && result.data) {
+          const model = createTagViewModel(result.data);
+          dispatch(upsertTag(toTagStateItem(model)));
+          setErrorMessage(null);
+        } else {
+          setErrorMessage(result.message ?? '태그를 불러오는 중 오류가 발생했습니다.');
+        }
+      } catch {
+        setErrorMessage('태그를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setLoadState(LOAD_STATES.IDLE);
+      }
+    },
+    [api, dispatch, params.id],
+  );
 
   useEffect(() => {
     if (!params.isEnabled) {

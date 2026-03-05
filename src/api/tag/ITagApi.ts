@@ -22,3 +22,4 @@ export default abstract class ITagApi extends IApi {
 
   abstract deleteTag(params: DeleteTagParams): Promise<DeleteTagResult>;
 }
+

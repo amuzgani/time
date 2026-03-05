@@ -1,4 +1,4 @@
-import getTagsJson from '@/assets/dummies/getTags.json';
+import tagsJson from '@/assets/dummies/tag/tags_list.json';
 import TagEntity from '@/entities/TagEntity';
 import type {
   CreateTagParams,
@@ -14,27 +14,35 @@ import type {
 import ITagApi from './ITagApi';
 
 export default class FakeTagApi extends ITagApi {
-  private fakeTags: unknown[] = getTagsJson;
+  private tags: TagEntity[];
+
+  private nextId: number;
+
+  constructor() {
+    super();
+
+    this.tags = (tagsJson as unknown[]).map((item) => TagEntity.fromJson(item));
+    this.nextId =
+      this.tags.length > 0
+        ? Math.max(...this.tags.map((tag) => tag.id)) + 1
+        : 1;
+  }
 
   async getTags(): Promise<GetTagsResult> {
     return {
       success: true,
       message: null,
-      data: this.fakeTags.map((item) => TagEntity.fromJson(item)),
+      data: this.tags,
     };
   }
 
   async getTagById(params: GetTagByIdParams): Promise<GetTagByIdResult> {
-    const found = this.fakeTags.find((item) => {
-      const parsed = TagEntity.fromJson(item);
+    const target = this.tags.find((tag) => tag.id === params.id) ?? null;
 
-      return parsed.id === params.id;
-    });
-
-    if (!found) {
+    if (!target) {
       return {
         success: false,
-        message: `Tag with id ${params.id} not found`,
+        message: '태그를 찾을 수 없습니다.',
         data: null,
       };
     }
@@ -42,84 +50,74 @@ export default class FakeTagApi extends ITagApi {
     return {
       success: true,
       message: null,
-      data: TagEntity.fromJson(found),
+      data: target,
     };
   }
 
   async createTag(params: CreateTagParams): Promise<CreateTagResult> {
     const now = new Date().toISOString();
-    const maxId = this.fakeTags.reduce<number>((max, item) => {
-      const parsed = TagEntity.fromJson(item);
-
-      return Math.max(max, parsed.id);
-    }, 0);
-
-    const newTag = {
-      id: maxId + 1,
+    const created = new TagEntity({
+      id: this.nextId,
       name: params.name,
       color: params.color,
-      created_at: now,
-      updated_at: now,
-    };
+      createdAt: now,
+      updatedAt: now,
+    });
 
-    this.fakeTags.push(newTag);
+    this.tags = [...this.tags, created];
+    this.nextId += 1;
 
     return {
       success: true,
       message: null,
-      data: TagEntity.fromJson(newTag),
+      data: created,
     };
   }
 
   async updateTag(params: UpdateTagParams): Promise<UpdateTagResult> {
-    const index = this.fakeTags.findIndex((item) => {
-      const parsed = TagEntity.fromJson(item);
+    const index = this.tags.findIndex((tag) => tag.id === params.id);
 
-      return parsed.id === params.id;
-    });
-
-    if (index < 0) {
+    if (index === -1) {
       return {
         success: false,
-        message: `Tag with id ${params.id} not found`,
+        message: '태그를 찾을 수 없습니다.',
         data: null,
       };
     }
 
-    const current = TagEntity.fromJson(this.fakeTags[index]);
-    const now = new Date().toISOString();
-    const updated = {
-      id: current.id,
-      name: params.name ?? current.name,
-      color: params.color ?? current.color,
-      created_at: current.createdAt,
-      updated_at: now,
-    };
+    const previous = this.tags[index];
+    const updated = new TagEntity({
+      id: previous.id,
+      name: params.name,
+      color: params.color,
+      createdAt: previous.createdAt,
+      updatedAt: new Date().toISOString(),
+    });
 
-    this.fakeTags[index] = updated;
+    this.tags = [
+      ...this.tags.slice(0, index),
+      updated,
+      ...this.tags.slice(index + 1),
+    ];
 
     return {
       success: true,
       message: null,
-      data: TagEntity.fromJson(updated),
+      data: updated,
     };
   }
 
   async deleteTag(params: DeleteTagParams): Promise<DeleteTagResult> {
-    const index = this.fakeTags.findIndex((item) => {
-      const parsed = TagEntity.fromJson(item);
+    const exists = this.tags.some((tag) => tag.id === params.id);
 
-      return parsed.id === params.id;
-    });
-
-    if (index < 0) {
+    if (!exists) {
       return {
         success: false,
-        message: `Tag with id ${params.id} not found`,
+        message: '태그를 찾을 수 없습니다.',
       };
     }
 
-    this.fakeTags.splice(index, 1);
+    this.tags = this.tags.filter((tag) => tag.id !== params.id);
 
     return {
       success: true,
@@ -127,3 +125,4 @@ export default class FakeTagApi extends ITagApi {
     };
   }
 }
+

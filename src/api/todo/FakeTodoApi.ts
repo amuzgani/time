@@ -1,5 +1,5 @@
-import getTodosJson from '@/assets/dummies/getTodos.json';
 import TodoEntity from '@/entities/TodoEntity';
+import todosJson from '@/assets/dummies/todo/todos_list.json';
 import type {
   CreateTodoParams,
   CreateTodoResult,
@@ -14,27 +14,35 @@ import type {
 import ITodoApi from './ITodoApi';
 
 export default class FakeTodoApi extends ITodoApi {
-  private fakeTodos: unknown[] = getTodosJson;
+  private todos: TodoEntity[];
+
+  private nextId: number;
+
+  constructor() {
+    super();
+
+    this.todos = (todosJson as unknown[]).map((item) => TodoEntity.fromJson(item));
+    this.nextId =
+      this.todos.length > 0
+        ? Math.max(...this.todos.map((todo) => todo.id)) + 1
+        : 1;
+  }
 
   async getTodos(): Promise<GetTodosResult> {
     return {
       success: true,
       message: null,
-      data: this.fakeTodos.map((item) => TodoEntity.fromJson(item)),
+      data: this.todos,
     };
   }
 
   async getTodoById(params: GetTodoByIdParams): Promise<GetTodoByIdResult> {
-    const found = this.fakeTodos.find((item) => {
-      const parsed = TodoEntity.fromJson(item);
+    const target = this.todos.find((todo) => todo.id === params.id) ?? null;
 
-      return parsed.id === params.id;
-    });
-
-    if (!found) {
+    if (!target) {
       return {
         success: false,
-        message: `Todo with id ${params.id} not found`,
+        message: '할 일을 찾을 수 없습니다.',
         data: null,
       };
     }
@@ -42,90 +50,86 @@ export default class FakeTodoApi extends ITodoApi {
     return {
       success: true,
       message: null,
-      data: TodoEntity.fromJson(found),
+      data: target,
     };
   }
 
   async createTodo(params: CreateTodoParams): Promise<CreateTodoResult> {
     const now = new Date().toISOString();
-    const maxId = this.fakeTodos.reduce<number>((max, item) => {
-      const parsed = TodoEntity.fromJson(item);
-
-      return Math.max(max, parsed.id);
-    }, 0);
-
-    const newTodo = {
-      id: maxId + 1,
+    const created = new TodoEntity({
+      id: this.nextId,
       title: params.title,
       description: params.description ?? null,
-      is_completed: false,
-      due_date: params.dueDate ?? null,
-      created_at: now,
-      updated_at: now,
+      isCompleted: false,
+      dueDate: null,
+      createdAt: now,
+      updatedAt: now,
       tags: [],
-    };
+    });
 
-    this.fakeTodos.push(newTodo);
+    this.todos = [...this.todos, created];
+    this.nextId += 1;
 
     return {
       success: true,
       message: null,
-      data: TodoEntity.fromJson(newTodo),
+      data: created,
     };
   }
 
   async updateTodo(params: UpdateTodoParams): Promise<UpdateTodoResult> {
-    const index = this.fakeTodos.findIndex((item) => {
-      const parsed = TodoEntity.fromJson(item);
+    const index = this.todos.findIndex((todo) => todo.id === params.id);
 
-      return parsed.id === params.id;
-    });
-
-    if (index < 0) {
+    if (index === -1) {
       return {
         success: false,
-        message: `Todo with id ${params.id} not found`,
+        message: '할 일을 찾을 수 없습니다.',
         data: null,
       };
     }
 
-    const current = TodoEntity.fromJson(this.fakeTodos[index]);
-    const now = new Date().toISOString();
-    const updated = {
-      id: current.id,
-      title: params.title ?? current.title,
-      description: params.description ?? current.description ?? null,
-      is_completed: params.isCompleted ?? current.isCompleted,
-      due_date: params.dueDate ?? current.dueDate ?? null,
-      created_at: current.createdAt,
-      updated_at: now,
-      tags: current.tags.map((tag) => tag.toJson()),
-    };
+    const previous = this.todos[index];
+    const updated = new TodoEntity({
+      id: previous.id,
+      title: params.title ?? previous.title,
+      description:
+        params.description !== undefined
+          ? params.description
+          : previous.description,
+      isCompleted:
+        params.isCompleted !== undefined
+          ? params.isCompleted
+          : previous.isCompleted,
+      dueDate: previous.dueDate ?? null,
+      createdAt: previous.createdAt,
+      updatedAt: new Date().toISOString(),
+      tags: previous.tags,
+    });
 
-    this.fakeTodos[index] = updated;
+    this.todos = [
+      ...this.todos.slice(0, index),
+      updated,
+      ...this.todos.slice(index + 1),
+    ];
 
     return {
       success: true,
       message: null,
-      data: TodoEntity.fromJson(updated),
+      data: updated,
     };
   }
 
   async deleteTodo(params: DeleteTodoParams): Promise<DeleteTodoResult> {
-    const index = this.fakeTodos.findIndex((item) => {
-      const parsed = TodoEntity.fromJson(item);
+    const exists = this.todos.some((todo) => todo.id === params.id);
 
-      return parsed.id === params.id;
-    });
-
-    if (index < 0) {
+    if (!exists) {
       return {
         success: false,
-        message: `Todo with id ${params.id} not found`,
+        message: '할 일을 찾을 수 없습니다.',
       };
     }
 
-    this.fakeTodos.splice(index, 1);
+    this.todos = this.todos.filter((todo) => todo.id !== params.id);
 
     return {
       success: true,
@@ -133,3 +137,4 @@ export default class FakeTodoApi extends ITodoApi {
     };
   }
 }
+

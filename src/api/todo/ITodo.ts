@@ -16,8 +16,6 @@ export interface GetTodoByIdResult extends BaseResult {
 export interface CreateTodoParams {
   title: string;
   description?: string | null;
-  dueDate?: string | null;
-  tagIds?: number[];
 }
 
 export interface CreateTodoResult extends BaseResult {
@@ -29,8 +27,6 @@ export interface UpdateTodoParams {
   title?: string;
   description?: string | null;
   isCompleted?: boolean;
-  dueDate?: string | null;
-  tagIds?: number[];
 }
 
 export interface UpdateTodoResult extends BaseResult {
@@ -42,3 +38,4 @@ export interface DeleteTodoParams {
 }
 
 export type DeleteTodoResult = BaseResult;
+

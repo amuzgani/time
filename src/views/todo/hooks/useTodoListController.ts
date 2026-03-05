@@ -28,28 +28,31 @@ export default function useTodoListController(): UseTodoListControllerReturn {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const items = useMemo(() => todoItems.map((item) => toTodoViewModel(item)), [todoItems]);
 
-  const fetchTodos = useCallback(async (nextState: LoadState): Promise<void> => {
-    setLoadState(nextState);
-    if (nextState !== LOAD_STATES.IDLE) {
-      setErrorMessage(null);
-    }
-
-    try {
-      const result = await api.getTodos();
-
-      if (result.success) {
-        const models = result.data.map((entity) => createTodoViewModel(entity));
-        dispatch(setAllTodos(models.map((model) => toTodoStateItem(model))));
+  const fetchTodos = useCallback(
+    async (nextState: LoadState): Promise<void> => {
+      setLoadState(nextState);
+      if (nextState !== LOAD_STATES.IDLE) {
         setErrorMessage(null);
-      } else {
-        setErrorMessage(result.message ?? '할 일을 불러오는 중 오류가 발생했습니다.');
       }
-    } catch {
-      setErrorMessage('할 일을 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setLoadState(LOAD_STATES.IDLE);
-    }
-  }, [api, dispatch]);
+
+      try {
+        const result = await api.getTodos();
+
+        if (result.success) {
+          const models = result.data.map((entity) => createTodoViewModel(entity));
+          dispatch(setAllTodos(models.map((model) => toTodoStateItem(model))));
+          setErrorMessage(null);
+        } else {
+          setErrorMessage(result.message ?? '할 일을 불러오는 중 오류가 발생했습니다.');
+        }
+      } catch {
+        setErrorMessage('할 일을 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setLoadState(LOAD_STATES.IDLE);
+      }
+    },
+    [api, dispatch],
+  );
 
   useEffect(() => {
     void fetchTodos(LOAD_STATES.INITIAL_LOADING);

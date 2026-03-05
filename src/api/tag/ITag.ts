@@ -24,8 +24,8 @@ export interface CreateTagResult extends BaseResult {
 
 export interface UpdateTagParams {
   id: number;
-  name?: string;
-  color?: string;
+  name: string;
+  color: string;
 }
 
 export interface UpdateTagResult extends BaseResult {
@@ -37,3 +37,4 @@ export interface DeleteTagParams {
 }
 
 export type DeleteTagResult = BaseResult;
+
