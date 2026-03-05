@@ -180,7 +180,22 @@ export default class ResourceApi extends IResourceApi {}
 - 기본 생성 시 메서드 없는 빈 구현 클래스로 생성한다.
 - Entity를 직접 생성하거나 `fromJson`을 사용한다.
 - 반환 구조는 Real API와 완전히 동일해야한다.
-- 더미 데이터 파일은 필요할 때 선택적으로 추가한다. (생성 시 강제하지 않음)
+- 더미 데이터 파일은 필요할 때 도메인/시나리오별로 추가한다. (Fake를 사용하는 경우 JSON 파일을 기본으로 사용한다)
+
+### 7-1. Fake 데이터 파일 규칙
+
+- Fake API(`Fake{API이름}Api.ts`)에서 사용하는 더미 데이터는 **`src/assets/dummies/` 하위 JSON 파일**로 관리한다.
+- 도메인별 디렉터리 구조:
+  - `src/assets/dummies/{domain}/`
+  - 예: `todo` → `src/assets/dummies/todo/`, `tag` → `src/assets/dummies/tag/`
+- 파일명 규칙:
+  - 목록: `{resource}_list.json` (예: `todos_list.json`, `tags_list.json`)
+  - 시나리오 분리 필요 시: `{resource}_{scenario}.json`
+    - 예: `todo_detail_default.json`, `todo_detail_not_found.json`
+- Fake API는 더미 데이터를 직접 하드코딩하지 않고, 위 JSON 파일을 import 해서 사용한다.
+  - 예: `import raw from '@/assets/dummies/todo/todos_list.json';`
+  - `const entities = (raw as unknown[]).map((item) => TodoEntity.fromJson(item));`
+- JSON → Entity 변환은 항상 `Entity.fromJson()`으로 수행하며, JSON 구조는 해당 Entity의 `fromJson`이 기대하는 서버 응답 스키마를 그대로 따른다.
 
 ---
 
