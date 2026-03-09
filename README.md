@@ -1,4 +1,4 @@
-# my-app
+# react-starter
 
 React + TypeScript + Vite 기반의 웹 애플리케이션입니다.
 도메인과 표현 계층을 분리한 구조를 사용하며, 상세 설계와 규칙은 `AGENTS.md` 및 `.cursor/rules`를 따릅니다.
