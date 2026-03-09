@@ -289,6 +289,9 @@ export type NotificationType =
 
 - 상태에 따른 스타일 변경은 transient props(`$` prefix)로 전달합니다.
 - `$` prefix가 붙은 props는 DOM으로 전달되지 않고 스타일 계산에만 사용됩니다.
+- 특정 페이지의 `.styles.ts`는 View에서 개별 named import를 길게 나열하지 않습니다.
+- `.styles.ts`에서 `const S = { ... } as const`로 묶어 `default export` 하고, View에서는 `import S from './{PageName}.styles'` 후 `S.ComponentName` 형태로 사용합니다.
+- 기존 호환이 필요하면 named export를 유지할 수 있지만, 신규/수정 코드는 `S` 네임스페이스 패턴을 우선합니다.
 
 ### 8-4. 성능 규칙
 

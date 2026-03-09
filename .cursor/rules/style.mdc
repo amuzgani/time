@@ -62,6 +62,43 @@ export const Container = styled.div`
 `;
 ```
 
+### 2-1. 페이지 스타일 export 규칙
+
+- 특정 View 전용 `.styles.ts`는 기본적으로 개별 named import를 길게 나열하지 않는다.
+- 페이지 단위 스타일은 기본적으로 `const S = { ... } as const` 형태로 묶어 `default export` 한다.
+- View에서는 `import S from './{PageName}.styles'` 형태로 가져오고, JSX에서는 `S.Container`, `S.Header`, `S.ButtonPrimary`처럼 사용한다.
+- 기존 호환이 필요하면 named export는 유지할 수 있지만, 새 코드/수정 코드는 `S` 네임스페이스 사용을 우선한다.
+
+```typescript
+// {PageName}.styles.ts
+export const Page = styled.main``;
+export const Header = styled.header``;
+export const Title = styled.h1``;
+
+const S = {
+  Page,
+  Header,
+  Title,
+} as const;
+
+export default S;
+```
+
+```typescript
+// {PageName}.tsx
+import S from './{PageName}.styles';
+
+export default function Page(): React.ReactNode {
+  return (
+    <S.Page>
+      <S.Header>
+        <S.Title>Title</S.Title>
+      </S.Header>
+    </S.Page>
+  );
+}
+```
+
 ---
 
 ## 3. 상태 제어 규칙
@@ -88,6 +125,7 @@ export const Button = styled.button<{ $isDisabled: boolean; $variant?: 'primary'
 - 매직 넘버(하드코딩된 px, color 등)를 직접 사용하지 않는다.
 - 상태 제어는 transient props(`$` prefix)로 한다.
 - 스타일 파일은 `{컴포넌트명}.styles.ts`로 분리한다.
+- 페이지 전용 `.styles.ts`는 `default export S` 네임스페이스 패턴을 기본으로 사용한다.
 - z-index는 숫자 하드코딩 대신 `theme.zIndexes.{token}`으로 사용한다.
 
 ---
