@@ -1,36 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/constants/route_paths';
 import useTodoDetailController from '@/views/todo/hooks/useTodoDetailController';
-import {
-  ActionsColumn,
-  AlertError,
-  Card,
-  DetailForm,
-  DetailStatusRow,
-  DetailTitleInput,
-  Field,
-  FieldLabel,
-  Header,
-  HeaderSubtitle,
-  HeaderTitle,
-  HeaderTitles,
-  Layout,
-  MetaList,
-  MetaRow,
-  MetaTerm,
-  MetaValue,
-  OutlineDangerButton,
-  Page,
-  PageInner,
-  PrimaryFullButton,
-  SkeletonCard,
-  SmallButton,
-  StatusBadge,
-  TextArea,
-  TextLinkButton,
-  ButtonGhost,
-} from './TodoDetailPage.styles';
+import S from './TodoDetailPage.styles';
 
 export default function TodoDetailPage(): React.ReactNode {
   const params = useParams();
@@ -57,6 +29,7 @@ export default function TodoDetailPage(): React.ReactNode {
     id,
     isEnabled: isValidId,
   });
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -72,124 +45,131 @@ export default function TodoDetailPage(): React.ReactNode {
     await onSave({ title, description });
   };
 
+  const handleToggleComplete = useCallback(() => {
+    void onToggleComplete();
+  }, [onToggleComplete]);
+
+  const handleSubmitButtonClick = useCallback(() => {
+    formRef.current?.requestSubmit();
+  }, []);
+
+  const handleDelete = useCallback(async () => {
+    const isDeleted = await onDelete();
+
+    if (isDeleted) {
+      navigate(ROUTE_PATHS.TODO_LIST);
+    }
+  }, [navigate, onDelete]);
+
   return (
-    <Page>
-      <PageInner>
-        <Header>
-          <HeaderTitles>
-            <HeaderTitle>할 일 상세</HeaderTitle>
-            <HeaderSubtitle>개별 작업의 내용을 확인하고 수정하세요</HeaderSubtitle>
-          </HeaderTitles>
+    <S.Page>
+      <S.PageInner>
+        <S.Header>
+          <S.HeaderTitles>
+            <S.HeaderTitle>할 일 상세</S.HeaderTitle>
+            <S.HeaderSubtitle>개별 작업의 내용을 확인하고 수정하세요</S.HeaderSubtitle>
+          </S.HeaderTitles>
           <Link to={ROUTE_PATHS.TODO_LIST}>
-            <ButtonGhost type="button">목록으로</ButtonGhost>
+            <S.ButtonGhost type="button">목록으로</S.ButtonGhost>
           </Link>
-        </Header>
+        </S.Header>
 
         {isInitialLoading ? (
-          <Layout>
-            <SkeletonCard />
-            <SkeletonCard />
-          </Layout>
+          <S.Layout>
+            <S.SkeletonCard />
+            <S.SkeletonCard />
+          </S.Layout>
         ) : errorMessage ? (
-          <AlertError>
+          <S.AlertError>
             <span>{errorMessage}</span>
             <button type="button" onClick={onRetry}>
               다시 시도
             </button>
-          </AlertError>
+          </S.AlertError>
         ) : !item ? (
-          <Card>
+          <S.Card>
             <p>해당 할 일을 찾을 수 없습니다.</p>
             <Link to={ROUTE_PATHS.TODO_LIST}>목록으로</Link>
-          </Card>
+          </S.Card>
         ) : (
-          <Layout>
-            <Card>
-              <DetailForm onSubmit={handleSubmit}>
+          <S.Layout>
+            <S.Card>
+              <S.DetailForm ref={formRef} onSubmit={handleSubmit}>
                 <div>
-                  <DetailTitleInput
+                  <S.DetailTitleInput
                     name="title"
                     defaultValue={item.title}
                     disabled={isActionLoading}
                   />
-                  <DetailStatusRow>
-                    <StatusBadge $completed={item.isCompleted}>
+                  <S.DetailStatusRow>
+                    <S.StatusBadge $completed={item.isCompleted}>
                       {item.isCompleted ? '완료' : '진행중'}
-                    </StatusBadge>
-                    <SmallButton
+                    </S.StatusBadge>
+                    <S.SmallButton
                       type="button"
                       disabled={isActionLoading}
-                      onClick={() => {
-                        void onToggleComplete();
-                      }}
+                      onClick={handleToggleComplete}
                     >
                       {item.isCompleted ? '미완료로 표시' : '완료로 표시'}
-                    </SmallButton>
-                  </DetailStatusRow>
+                    </S.SmallButton>
+                  </S.DetailStatusRow>
                 </div>
 
-                <Field>
-                  <FieldLabel>설명</FieldLabel>
-                  <TextArea
+                <S.Field>
+                  <S.FieldLabel>설명</S.FieldLabel>
+                  <S.TextArea
                     name="description"
                     defaultValue={item.description}
                     disabled={isActionLoading}
                   />
-                </Field>
-              </DetailForm>
-            </Card>
+                </S.Field>
+              </S.DetailForm>
+            </S.Card>
 
-            <ActionsColumn>
-              <Card>
+            <S.ActionsColumn>
+              <S.Card>
                 <h2>정보</h2>
-                <MetaList>
-                  <MetaRow>
-                    <MetaTerm>생성일</MetaTerm>
-                    <MetaValue>{item.createdAtLabel}</MetaValue>
-                  </MetaRow>
-                  <MetaRow>
-                    <MetaTerm>수정일</MetaTerm>
-                    <MetaValue>{item.updatedAtLabel}</MetaValue>
-                  </MetaRow>
-                  <MetaRow>
-                    <MetaTerm>기한</MetaTerm>
-                    <MetaValue>{item.dueDateLabel ?? '-'}</MetaValue>
-                  </MetaRow>
-                </MetaList>
-              </Card>
+                <S.MetaList>
+                  <S.MetaRow>
+                    <S.MetaTerm>생성일</S.MetaTerm>
+                    <S.MetaValue>{item.createdAtLabel}</S.MetaValue>
+                  </S.MetaRow>
+                  <S.MetaRow>
+                    <S.MetaTerm>수정일</S.MetaTerm>
+                    <S.MetaValue>{item.updatedAtLabel}</S.MetaValue>
+                  </S.MetaRow>
+                  <S.MetaRow>
+                    <S.MetaTerm>기한</S.MetaTerm>
+                    <S.MetaValue>{item.dueDateLabel ?? '-'}</S.MetaValue>
+                  </S.MetaRow>
+                </S.MetaList>
+              </S.Card>
 
-              <Card>
-                <ActionsColumn>
-                  <PrimaryFullButton
+              <S.Card>
+                <S.ActionsColumn>
+                  <S.PrimaryFullButton
                     type="button"
                     disabled={isActionLoading}
-                    onClick={() => {
-                      const form =
-                        document.querySelector<HTMLFormElement>('form');
-                      form?.requestSubmit();
-                    }}
+                    onClick={handleSubmitButtonClick}
                   >
                     저장
-                  </PrimaryFullButton>
-                  <OutlineDangerButton
+                  </S.PrimaryFullButton>
+                  <S.OutlineDangerButton
                     type="button"
                     disabled={isActionLoading}
-                    onClick={() => {
-                      void onDelete();
-                    }}
+                    onClick={handleDelete}
                   >
                     삭제
-                  </OutlineDangerButton>
+                  </S.OutlineDangerButton>
                   <Link to={ROUTE_PATHS.TODO_LIST}>
-                    <TextLinkButton>목록으로</TextLinkButton>
+                    <S.TextLinkButton>목록으로</S.TextLinkButton>
                   </Link>
-                </ActionsColumn>
-              </Card>
-            </ActionsColumn>
-          </Layout>
+                </S.ActionsColumn>
+              </S.Card>
+            </S.ActionsColumn>
+          </S.Layout>
         )}
-      </PageInner>
-    </Page>
+      </S.PageInner>
+    </S.Page>
   );
 }
-

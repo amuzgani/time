@@ -1,5 +1,5 @@
 import TodoViewModel from '@/view_models/todo/TodoViewModel';
-import TagViewModel from '@/view_models/todo/TagViewModel';
+import TagViewModel from '@/view_models/tag/TagViewModel';
 import type { TodoStateItem, TodoTagStateItem } from './types';
 
 function toTodoTagStateItem(model: TagViewModel): TodoTagStateItem {
@@ -43,4 +43,3 @@ export function toTodoViewModel(item: TodoStateItem): TodoViewModel {
     tags: item.tags.map((tag) => toTagViewModel(tag)),
   });
 }
-

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTodoApi } from '@/api';
-import { ROUTE_PATHS } from '@/constants/route_paths';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toTodoStateItem, toTodoViewModel } from '@/store/slices/todo/adapters';
 import { selectTodoItemById } from '@/store/slices/todo/selectors';
@@ -8,7 +7,6 @@ import { removeTodoById, upsertTodo } from '@/store/slices/todo/slice';
 import { LOAD_STATES, type LoadState } from '@/types/load_state';
 import type TodoViewModel from '@/view_models/todo/TodoViewModel';
 import { createTodoViewModel } from '@/view_models/todo/TodoViewModel';
-import { useNavigate } from 'react-router-dom';
 
 interface UseTodoDetailControllerParams {
   id: number;
@@ -24,7 +22,7 @@ interface UseTodoDetailControllerReturn {
   onRetry: () => void;
   onSave: (params: { title: string; description: string }) => Promise<void>;
   onToggleComplete: () => Promise<void>;
-  onDelete: () => Promise<void>;
+  onDelete: () => Promise<boolean>;
 }
 
 export default function useTodoDetailController(
@@ -32,7 +30,6 @@ export default function useTodoDetailController(
 ): UseTodoDetailControllerReturn {
   const api = useTodoApi();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const todoItem = useAppSelector((state) => selectTodoItemById(state, params.id) ?? null);
   const item = useMemo(() => {
     if (!todoItem) {
@@ -152,10 +149,10 @@ export default function useTodoDetailController(
     }
   }, [api, dispatch, item]);
 
-  const onDelete = useCallback(async (): Promise<void> => {
+  const onDelete = useCallback(async (): Promise<boolean> => {
     const current = item;
 
-    if (!current) return;
+    if (!current) return false;
 
     setLoadState(LOAD_STATES.ACTION_LOADING);
     setErrorMessage(null);
@@ -166,17 +163,18 @@ export default function useTodoDetailController(
       if (!result.success) {
         setErrorMessage(result.message ?? '할 일을 삭제하는 중 오류가 발생했습니다.');
 
-        return;
+        return false;
       }
 
       dispatch(removeTodoById(current.id));
-      navigate(ROUTE_PATHS.TODO_LIST);
+      return true;
     } catch {
       setErrorMessage('할 일을 삭제하는 중 오류가 발생했습니다.');
+      return false;
     } finally {
       setLoadState(LOAD_STATES.IDLE);
     }
-  }, [api, dispatch, item, navigate]);
+  }, [api, dispatch, item]);
 
   return {
     item,
@@ -190,4 +188,3 @@ export default function useTodoDetailController(
     onDelete,
   };
 }
-

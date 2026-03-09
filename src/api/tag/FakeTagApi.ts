@@ -56,12 +56,12 @@ export default class FakeTagApi extends ITagApi {
 
   async createTag(params: CreateTagParams): Promise<CreateTagResult> {
     const now = new Date().toISOString();
-    const created = new TagEntity({
+    const created = TagEntity.fromJson({
       id: this.nextId,
       name: params.name,
       color: params.color,
-      createdAt: now,
-      updatedAt: now,
+      created_at: now,
+      updated_at: now,
     });
 
     this.tags = [...this.tags, created];
@@ -86,12 +86,12 @@ export default class FakeTagApi extends ITagApi {
     }
 
     const previous = this.tags[index];
-    const updated = new TagEntity({
+    const updated = TagEntity.fromJson({
       id: previous.id,
       name: params.name,
       color: params.color,
-      createdAt: previous.createdAt,
-      updatedAt: new Date().toISOString(),
+      created_at: previous.createdAt,
+      updated_at: new Date().toISOString(),
     });
 
     this.tags = [
@@ -125,4 +125,3 @@ export default class FakeTagApi extends ITagApi {
     };
   }
 }
-

@@ -56,14 +56,14 @@ export default class FakeTodoApi extends ITodoApi {
 
   async createTodo(params: CreateTodoParams): Promise<CreateTodoResult> {
     const now = new Date().toISOString();
-    const created = new TodoEntity({
+    const created = TodoEntity.fromJson({
       id: this.nextId,
       title: params.title,
       description: params.description ?? null,
-      isCompleted: false,
-      dueDate: null,
-      createdAt: now,
-      updatedAt: now,
+      is_completed: false,
+      due_date: null,
+      created_at: now,
+      updated_at: now,
       tags: [],
     });
 
@@ -89,21 +89,21 @@ export default class FakeTodoApi extends ITodoApi {
     }
 
     const previous = this.todos[index];
-    const updated = new TodoEntity({
+    const updated = TodoEntity.fromJson({
       id: previous.id,
       title: params.title ?? previous.title,
       description:
         params.description !== undefined
           ? params.description
           : previous.description,
-      isCompleted:
+      is_completed:
         params.isCompleted !== undefined
           ? params.isCompleted
           : previous.isCompleted,
-      dueDate: previous.dueDate ?? null,
-      createdAt: previous.createdAt,
-      updatedAt: new Date().toISOString(),
-      tags: previous.tags,
+      due_date: previous.dueDate ?? null,
+      created_at: previous.createdAt,
+      updated_at: new Date().toISOString(),
+      tags: previous.tags.map((tag) => tag.toJson()),
     });
 
     this.todos = [
@@ -137,4 +137,3 @@ export default class FakeTodoApi extends ITodoApi {
     };
   }
 }
-

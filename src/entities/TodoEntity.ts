@@ -2,7 +2,7 @@ import { z } from 'zod';
 import BaseEntity from './BaseEntity';
 import TagEntity, { TagJsonSchema } from './TagEntity';
 
-const TodoJsonSchema = z.object({
+export const TodoJsonSchema = z.object({
   id: z.number(),
   title: z.string(),
   description: z.string().nullable().optional(),
@@ -75,4 +75,3 @@ export default class TodoEntity extends BaseEntity {
     };
   }
 }
-

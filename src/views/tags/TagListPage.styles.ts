@@ -174,3 +174,28 @@ export const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
+const S = {
+  Page,
+  PageInner,
+  Header,
+  HeaderTitles,
+  HeaderTitle,
+  HeaderSubtitle,
+  ButtonGhostLink,
+  Card,
+  CreateFormRow,
+  TextInput,
+  ButtonPrimary,
+  ListHeader,
+  List,
+  ListRow,
+  TagInfo,
+  ColorDot,
+  TagName,
+  RowActions,
+  LinkTextButton,
+  DangerTextButton,
+  EmptyState,
+} as const;
+
+export default S;

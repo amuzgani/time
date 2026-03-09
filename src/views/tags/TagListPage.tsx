@@ -1,29 +1,8 @@
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/constants/route_paths';
 import useTagListController from '@/views/tags/hooks/useTagListController';
-import {
-  ButtonGhostLink,
-  ButtonPrimary,
-  Card,
-  ColorDot,
-  CreateFormRow,
-  DangerTextButton,
-  EmptyState,
-  Header,
-  HeaderSubtitle,
-  HeaderTitle,
-  HeaderTitles,
-  List,
-  ListHeader,
-  ListRow,
-  Page,
-  PageInner,
-  RowActions,
-  TagInfo,
-  TagName,
-  TextInput,
-  LinkTextButton,
-} from './TagListPage.styles';
+import { useMemo } from 'react';
+import S from './TagListPage.styles';
 
 export default function TagListPage(): React.ReactNode {
   const {
@@ -52,120 +31,129 @@ export default function TagListPage(): React.ReactNode {
     }
   };
 
+  const deleteHandlers = useMemo(() => {
+    const handlers = new Map<number, () => void>();
+
+    for (const item of items) {
+      handlers.set(item.id, () => {
+        void onDelete(item.id);
+      });
+    }
+
+    return handlers;
+  }, [items, onDelete]);
+
   if (isInitialLoading) {
     return (
-      <Page>
-        <PageInner>
-          <Header>
-            <HeaderTitles>
-              <HeaderTitle>태그 관리</HeaderTitle>
-              <HeaderSubtitle>할 일에 사용할 태그를 구성하세요</HeaderSubtitle>
-            </HeaderTitles>
-          </Header>
-          <Card>불러오는 중입니다...</Card>
-        </PageInner>
-      </Page>
+      <S.Page>
+        <S.PageInner>
+          <S.Header>
+            <S.HeaderTitles>
+              <S.HeaderTitle>태그 관리</S.HeaderTitle>
+              <S.HeaderSubtitle>할 일에 사용할 태그를 구성하세요</S.HeaderSubtitle>
+            </S.HeaderTitles>
+          </S.Header>
+          <S.Card>불러오는 중입니다...</S.Card>
+        </S.PageInner>
+      </S.Page>
     );
   }
 
   if (errorMessage) {
     return (
-      <Page>
-        <PageInner>
-          <Header>
-            <HeaderTitles>
-              <HeaderTitle>태그 관리</HeaderTitle>
-              <HeaderSubtitle>할 일에 사용할 태그를 구성하세요</HeaderSubtitle>
-            </HeaderTitles>
-          </Header>
-          <Card>
+      <S.Page>
+        <S.PageInner>
+          <S.Header>
+            <S.HeaderTitles>
+              <S.HeaderTitle>태그 관리</S.HeaderTitle>
+              <S.HeaderSubtitle>할 일에 사용할 태그를 구성하세요</S.HeaderSubtitle>
+            </S.HeaderTitles>
+          </S.Header>
+          <S.Card>
             <p>{errorMessage}</p>
-            <ButtonPrimary type="button" onClick={onRetry}>
+            <S.ButtonPrimary type="button" onClick={onRetry}>
               다시 시도
-            </ButtonPrimary>
-          </Card>
-        </PageInner>
-      </Page>
+            </S.ButtonPrimary>
+          </S.Card>
+        </S.PageInner>
+      </S.Page>
     );
   }
 
   return (
-    <Page>
-      <PageInner>
-        <Header>
-          <HeaderTitles>
-            <HeaderTitle>태그 관리</HeaderTitle>
-            <HeaderSubtitle>할 일에 사용할 태그를 구성하세요</HeaderSubtitle>
-          </HeaderTitles>
+    <S.Page>
+      <S.PageInner>
+        <S.Header>
+          <S.HeaderTitles>
+            <S.HeaderTitle>태그 관리</S.HeaderTitle>
+            <S.HeaderSubtitle>할 일에 사용할 태그를 구성하세요</S.HeaderSubtitle>
+          </S.HeaderTitles>
           <Link to={ROUTE_PATHS.TODO_LIST}>
-            <ButtonGhostLink>할 일 목록</ButtonGhostLink>
+            <S.ButtonGhostLink>할 일 목록</S.ButtonGhostLink>
           </Link>
-        </Header>
+        </S.Header>
 
-        <Card>
+        <S.Card>
           <div>
             <h2>새 태그 추가</h2>
             <form onSubmit={handleSubmit}>
-              <CreateFormRow>
-                <TextInput
+              <S.CreateFormRow>
+                <S.TextInput
                   name="name"
                   placeholder="태그 이름"
                   disabled={isActionLoading}
                 />
-                <TextInput
+                <S.TextInput
                   name="color"
                   placeholder="#색상코드"
                   disabled={isActionLoading}
                 />
-                <ButtonPrimary type="submit" disabled={isActionLoading}>
+                <S.ButtonPrimary type="submit" disabled={isActionLoading}>
                   추가
-                </ButtonPrimary>
-              </CreateFormRow>
+                </S.ButtonPrimary>
+              </S.CreateFormRow>
             </form>
           </div>
 
           <div>
-            <ListHeader>
+            <S.ListHeader>
               <span>{items.length}개의 태그</span>
-            </ListHeader>
+            </S.ListHeader>
             {items.length === 0 ? (
-              <EmptyState>
+              <S.EmptyState>
                 <p>등록된 태그가 없습니다.</p>
-              </EmptyState>
+              </S.EmptyState>
             ) : (
-              <List>
+              <S.List>
                 {items.map((item) => (
-                  <ListRow key={item.id}>
-                    <TagInfo>
-                      <ColorDot $color={item.color} />
-                      <TagName>{item.name}</TagName>
-                    </TagInfo>
-                    <RowActions>
+                  <S.ListRow key={item.id}>
+                    <S.TagInfo>
+                      <S.ColorDot $color={item.color} />
+                      <S.TagName>{item.name}</S.TagName>
+                    </S.TagInfo>
+                    <S.RowActions>
                       <Link
                         to={ROUTE_PATHS.TAG_DETAIL.replace(':tagId', String(item.id))}
                       >
-                        <LinkTextButton>상세</LinkTextButton>
+                        <S.LinkTextButton>상세</S.LinkTextButton>
                       </Link>
-                    </RowActions>
-                    <RowActions>
-                      <DangerTextButton
+                    </S.RowActions>
+                    <S.RowActions>
+                      <S.DangerTextButton
                         type="button"
-                        onClick={() => {
-                          void onDelete(item.id);
-                        }}
+                        onClick={deleteHandlers.get(item.id)}
                         disabled={isActionLoading}
                       >
                         삭제
-                      </DangerTextButton>
-                    </RowActions>
-                  </ListRow>
+                      </S.DangerTextButton>
+                    </S.RowActions>
+                  </S.ListRow>
                 ))}
-              </List>
+              </S.List>
             )}
           </div>
-        </Card>
-      </PageInner>
-    </Page>
+        </S.Card>
+      </S.PageInner>
+    </S.Page>
   );
 }
-

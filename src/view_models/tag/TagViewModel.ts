@@ -1,5 +1,5 @@
-import BaseViewModel from '@/view_models/BaseViewModel';
 import TagEntity from '@/entities/TagEntity';
+import BaseViewModel from '@/view_models/BaseViewModel';
 
 interface TagViewModelProps {
   id: number;
@@ -28,4 +28,3 @@ export function createTagViewModel(entity: TagEntity): TagViewModel {
     color: entity.color,
   });
 }
-

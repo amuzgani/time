@@ -1,49 +1,8 @@
 import { ROUTE_PATHS } from '@/constants/route_paths';
 import useTodoListController from '@/views/todo/hooks/useTodoListController';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ButtonGhostLink,
-  ButtonPrimary,
-  CreateBlock,
-  CreateFormRow,
-  CreateTitle,
-  DangerTextButton,
-  DateText,
-  EmptyState,
-  FiltersCard,
-  FiltersExtra,
-  FiltersSection,
-  Header,
-  HeaderActions,
-  HeaderSubtitle,
-  HeaderTitle,
-  HeaderTitles,
-  LinkTextButton,
-  ListCard,
-  ListCount,
-  ListSection,
-  ListToolbar,
-  Page,
-  PageInner,
-  RowActions,
-  SearchInput,
-  Select,
-  StatusBadge,
-  SummaryCard,
-  SummaryGrid,
-  SummaryLabel,
-  SummarySection,
-  SummarySub,
-  SummaryValue,
-  TextButton,
-  TextInput,
-  TodoCheckboxLabel,
-  TodoList,
-  TodoMainCell,
-  TodoRow,
-  TodoTitle,
-} from './TodoListPage.styles';
+import S from './TodoListPage.styles';
 
 export default function TodoListPage(): React.ReactNode {
   const {
@@ -78,6 +37,23 @@ export default function TodoListPage(): React.ReactNode {
   const totalCount = items.length;
   const completedCount = items.filter((i) => i.isCompleted).length;
 
+  const handleSearchChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+    (event) => {
+      setSearch(event.target.value);
+    },
+    [],
+  );
+
+  const handleStatusFilterChange: React.ChangeEventHandler<HTMLSelectElement> =
+    useCallback((event) => {
+      setStatusFilter(event.target.value as 'all' | 'active' | 'completed');
+    }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setSearch('');
+    setStatusFilter('all');
+  }, []);
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
 
@@ -94,187 +70,195 @@ export default function TodoListPage(): React.ReactNode {
     }
   };
 
+  const toggleHandlers = useMemo(() => {
+    const handlers = new Map<number, () => void>();
+
+    for (const item of filteredItems) {
+      handlers.set(item.id, () => {
+        void onToggleComplete(item.id);
+      });
+    }
+
+    return handlers;
+  }, [filteredItems, onToggleComplete]);
+
+  const deleteHandlers = useMemo(() => {
+    const handlers = new Map<number, () => void>();
+
+    for (const item of filteredItems) {
+      handlers.set(item.id, () => {
+        void onDelete(item.id);
+      });
+    }
+
+    return handlers;
+  }, [filteredItems, onDelete]);
+
   if (isInitialLoading) {
     return (
-      <Page>
-        <PageInner>
-          <Header>
-            <HeaderTitles>
-              <HeaderTitle>할 일 목록</HeaderTitle>
-              <HeaderSubtitle>오늘 할 일을 한눈에 관리하세요</HeaderSubtitle>
-            </HeaderTitles>
-          </Header>
-          <ListCard>불러오는 중입니다...</ListCard>
-        </PageInner>
-      </Page>
+      <S.Page>
+        <S.PageInner>
+          <S.Header>
+            <S.HeaderTitles>
+              <S.HeaderTitle>할 일 목록</S.HeaderTitle>
+              <S.HeaderSubtitle>오늘 할 일을 한눈에 관리하세요</S.HeaderSubtitle>
+            </S.HeaderTitles>
+          </S.Header>
+          <S.ListCard>불러오는 중입니다...</S.ListCard>
+        </S.PageInner>
+      </S.Page>
     );
   }
 
   if (errorMessage) {
     return (
-      <Page>
-        <PageInner>
-          <Header>
-            <HeaderTitles>
-              <HeaderTitle>할 일 목록</HeaderTitle>
-              <HeaderSubtitle>오늘 할 일을 한눈에 관리하세요</HeaderSubtitle>
-            </HeaderTitles>
-          </Header>
-          <ListCard>
+      <S.Page>
+        <S.PageInner>
+          <S.Header>
+            <S.HeaderTitles>
+              <S.HeaderTitle>할 일 목록</S.HeaderTitle>
+              <S.HeaderSubtitle>오늘 할 일을 한눈에 관리하세요</S.HeaderSubtitle>
+            </S.HeaderTitles>
+          </S.Header>
+          <S.ListCard>
             <p>{errorMessage}</p>
-            <ButtonPrimary type="button" onClick={onRetry}>
+            <S.ButtonPrimary type="button" onClick={onRetry}>
               다시 시도
-            </ButtonPrimary>
-          </ListCard>
-        </PageInner>
-      </Page>
+            </S.ButtonPrimary>
+          </S.ListCard>
+        </S.PageInner>
+      </S.Page>
     );
   }
 
   return (
-    <Page>
-      <PageInner>
-        <Header>
-          <HeaderTitles>
-            <HeaderTitle>할 일 목록</HeaderTitle>
-            <HeaderSubtitle>오늘 할 일을 한눈에 관리하세요</HeaderSubtitle>
-          </HeaderTitles>
-          <HeaderActions>
-            <ButtonPrimary type="button">새 할 일</ButtonPrimary>
+    <S.Page>
+      <S.PageInner>
+        <S.Header>
+          <S.HeaderTitles>
+            <S.HeaderTitle>할 일 목록</S.HeaderTitle>
+            <S.HeaderSubtitle>오늘 할 일을 한눈에 관리하세요</S.HeaderSubtitle>
+          </S.HeaderTitles>
+          <S.HeaderActions>
+            <S.ButtonPrimary type="button">새 할 일</S.ButtonPrimary>
             <Link to={ROUTE_PATHS.TAG_LIST}>
-              <ButtonGhostLink>태그 관리</ButtonGhostLink>
+              <S.ButtonGhostLink>태그 관리</S.ButtonGhostLink>
             </Link>
-          </HeaderActions>
-        </Header>
+          </S.HeaderActions>
+        </S.Header>
 
-        <SummarySection>
-          <SummaryGrid>
-            <SummaryCard>
-              <SummaryLabel>총 할 일</SummaryLabel>
-              <SummaryValue>{totalCount}</SummaryValue>
-            </SummaryCard>
-            <SummaryCard>
-              <SummaryLabel>완료된 할 일</SummaryLabel>
-              <SummaryValue>
+        <S.SummarySection>
+          <S.SummaryGrid>
+            <S.SummaryCard>
+              <S.SummaryLabel>총 할 일</S.SummaryLabel>
+              <S.SummaryValue>{totalCount}</S.SummaryValue>
+            </S.SummaryCard>
+            <S.SummaryCard>
+              <S.SummaryLabel>완료된 할 일</S.SummaryLabel>
+              <S.SummaryValue>
                 {completedCount}{' '}
-                <SummarySub>/ {totalCount || 1}</SummarySub>
-              </SummaryValue>
-            </SummaryCard>
-          </SummaryGrid>
-        </SummarySection>
+                <S.SummarySub>/ {totalCount || 1}</S.SummarySub>
+              </S.SummaryValue>
+            </S.SummaryCard>
+          </S.SummaryGrid>
+        </S.SummarySection>
 
-        <FiltersSection>
-          <FiltersCard>
-            <SearchInput
+        <S.FiltersSection>
+          <S.FiltersCard>
+            <S.SearchInput
               type="search"
               placeholder="제목으로 검색"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
             />
-            <Select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value as 'all' | 'active' | 'completed')
-              }
-            >
+            <S.Select value={statusFilter} onChange={handleStatusFilterChange}>
               <option value="all">전체</option>
               <option value="active">진행중</option>
               <option value="completed">완료</option>
-            </Select>
-            <FiltersExtra>
-              <TextButton
-                type="button"
-                onClick={() => {
-                  setSearch('');
-                  setStatusFilter('all');
-                }}
-              >
+            </S.Select>
+            <S.FiltersExtra>
+              <S.TextButton type="button" onClick={handleResetFilters}>
                 필터 초기화
-              </TextButton>
-            </FiltersExtra>
-          </FiltersCard>
-        </FiltersSection>
+              </S.TextButton>
+            </S.FiltersExtra>
+          </S.FiltersCard>
+        </S.FiltersSection>
 
-        <ListSection>
-          <ListCard>
-            <CreateBlock>
-              <CreateTitle>새 할 일 추가</CreateTitle>
+        <S.ListSection>
+          <S.ListCard>
+            <S.CreateBlock>
+              <S.CreateTitle>새 할 일 추가</S.CreateTitle>
               <form onSubmit={handleSubmit}>
-                <CreateFormRow>
-                  <TextInput
+                <S.CreateFormRow>
+                  <S.TextInput
                     name="title"
                     placeholder="제목"
                     disabled={isActionLoading}
                   />
-                  <TextInput
+                  <S.TextInput
                     name="description"
                     placeholder="설명 (선택)"
                     disabled={isActionLoading}
                   />
-                  <ButtonPrimary type="submit" disabled={isActionLoading}>
+                  <S.ButtonPrimary type="submit" disabled={isActionLoading}>
                     추가
-                  </ButtonPrimary>
-                </CreateFormRow>
+                  </S.ButtonPrimary>
+                </S.CreateFormRow>
               </form>
-            </CreateBlock>
+            </S.CreateBlock>
 
-            <ListToolbar>
-              <ListCount>{filteredItems.length}개의 결과</ListCount>
-            </ListToolbar>
+            <S.ListToolbar>
+              <S.ListCount>{filteredItems.length}개의 결과</S.ListCount>
+            </S.ListToolbar>
 
             {filteredItems.length === 0 ? (
-              <EmptyState>
+              <S.EmptyState>
                 <p>아직 등록된 할 일이 없습니다.</p>
-                <ButtonPrimary type="button">첫 할 일 만들기</ButtonPrimary>
-              </EmptyState>
+                <S.ButtonPrimary type="button">첫 할 일 만들기</S.ButtonPrimary>
+              </S.EmptyState>
             ) : (
-              <TodoList>
+              <S.TodoList>
                 {filteredItems.map((item) => (
-                  <TodoRow key={item.id}>
-                    <TodoMainCell>
-                      <TodoCheckboxLabel>
+                  <S.TodoRow key={item.id}>
+                    <S.TodoMainCell>
+                      <S.TodoCheckboxLabel>
                         <input
                           type="checkbox"
                           checked={item.isCompleted}
-                          onChange={() => {
-                            void onToggleComplete(item.id);
-                          }}
+                          onChange={toggleHandlers.get(item.id)}
                           disabled={isActionLoading}
                         />
-                        <TodoTitle>{item.title}</TodoTitle>
-                      </TodoCheckboxLabel>
-                    </TodoMainCell>
-                    <StatusBadge $completed={item.isCompleted}>
+                        <S.TodoTitle>{item.title}</S.TodoTitle>
+                      </S.TodoCheckboxLabel>
+                    </S.TodoMainCell>
+                    <S.StatusBadge $completed={item.isCompleted}>
                       {item.isCompleted ? '완료' : '진행중'}
-                    </StatusBadge>
-                    <DateText>{item.updatedAtLabel ?? item.createdAtLabel}</DateText>
-                    <RowActions>
+                    </S.StatusBadge>
+                    <S.DateText>{item.updatedAtLabel ?? item.createdAtLabel}</S.DateText>
+                    <S.RowActions>
                       <Link
                         to={ROUTE_PATHS.TODO_DETAIL.replace(
                           ':todoId',
                           String(item.id),
                         )}
                       >
-                        <LinkTextButton>상세</LinkTextButton>
+                        <S.LinkTextButton>상세</S.LinkTextButton>
                       </Link>
-                      <DangerTextButton
+                      <S.DangerTextButton
                         type="button"
-                        onClick={() => {
-                          void onDelete(item.id);
-                        }}
+                        onClick={deleteHandlers.get(item.id)}
                         disabled={isActionLoading}
                       >
                         삭제
-                      </DangerTextButton>
-                    </RowActions>
-                  </TodoRow>
+                      </S.DangerTextButton>
+                    </S.RowActions>
+                  </S.TodoRow>
                 ))}
-              </TodoList>
+              </S.TodoList>
             )}
-          </ListCard>
-        </ListSection>
-      </PageInner>
-    </Page>
+          </S.ListCard>
+        </S.ListSection>
+      </S.PageInner>
+    </S.Page>
   );
 }
-

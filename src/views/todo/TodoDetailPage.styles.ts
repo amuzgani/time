@@ -214,3 +214,34 @@ export const TextLinkButton = styled.span`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
+const S = {
+  Page,
+  PageInner,
+  Header,
+  HeaderTitles,
+  HeaderTitle,
+  HeaderSubtitle,
+  ButtonGhost,
+  Layout,
+  Card,
+  SkeletonCard,
+  AlertError,
+  DetailForm,
+  DetailTitleInput,
+  DetailStatusRow,
+  StatusBadge,
+  SmallButton,
+  Field,
+  FieldLabel,
+  TextArea,
+  MetaList,
+  MetaRow,
+  MetaTerm,
+  MetaValue,
+  ActionsColumn,
+  PrimaryFullButton,
+  OutlineDangerButton,
+  TextLinkButton,
+} as const;
+
+export default S;

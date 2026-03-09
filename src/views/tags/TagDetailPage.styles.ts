@@ -146,3 +146,26 @@ export const OutlineDangerButton = styled.button`
   cursor: pointer;
 `;
 
+const S = {
+  Page,
+  PageInner,
+  Header,
+  HeaderTitles,
+  HeaderTitle,
+  HeaderSubtitle,
+  ButtonGhost,
+  Card,
+  SkeletonCard,
+  AlertError,
+  Form,
+  Field,
+  FieldLabel,
+  TextInput,
+  PreviewRow,
+  ColorDot,
+  ActionsRow,
+  PrimaryButton,
+  OutlineDangerButton,
+} as const;
+
+export default S;

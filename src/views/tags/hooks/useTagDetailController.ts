@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTagApi } from '@/api';
-import { ROUTE_PATHS } from '@/constants/route_paths';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toTagStateItem, toTagViewModel } from '@/store/slices/tag/adapters';
 import { selectTagItemById } from '@/store/slices/tag/selectors';
 import { removeTagById, upsertTag } from '@/store/slices/tag/slice';
 import { LOAD_STATES, type LoadState } from '@/types/load_state';
-import type TagViewModel from '@/view_models/todo/TagViewModel';
-import { createTagViewModel } from '@/view_models/todo/TagViewModel';
-import { useNavigate } from 'react-router-dom';
+import type TagViewModel from '@/view_models/tag/TagViewModel';
+import { createTagViewModel } from '@/view_models/tag/TagViewModel';
 
 interface UseTagDetailControllerParams {
   id: number;
@@ -23,7 +21,7 @@ interface UseTagDetailControllerReturn {
   errorMessage: string | null;
   onRetry: () => void;
   onSave: (params: { name: string; color: string }) => Promise<void>;
-  onDelete: () => Promise<void>;
+  onDelete: () => Promise<boolean>;
 }
 
 export default function useTagDetailController(
@@ -31,7 +29,6 @@ export default function useTagDetailController(
 ): UseTagDetailControllerReturn {
   const api = useTagApi();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const tagItem = useAppSelector((state) => selectTagItemById(state, params.id) ?? null);
   const item = useMemo(() => {
     if (!tagItem) {
@@ -123,10 +120,10 @@ export default function useTagDetailController(
     [api, dispatch, item],
   );
 
-  const onDelete = useCallback(async (): Promise<void> => {
+  const onDelete = useCallback(async (): Promise<boolean> => {
     const current = item;
 
-    if (!current) return;
+    if (!current) return false;
 
     setLoadState(LOAD_STATES.ACTION_LOADING);
     setErrorMessage(null);
@@ -137,17 +134,18 @@ export default function useTagDetailController(
       if (!result.success) {
         setErrorMessage(result.message ?? '태그를 삭제하는 중 오류가 발생했습니다.');
 
-        return;
+        return false;
       }
 
       dispatch(removeTagById(current.id));
-      navigate(ROUTE_PATHS.TAG_LIST);
+      return true;
     } catch {
       setErrorMessage('태그를 삭제하는 중 오류가 발생했습니다.');
+      return false;
     } finally {
       setLoadState(LOAD_STATES.IDLE);
     }
-  }, [api, dispatch, item, navigate]);
+  }, [api, dispatch, item]);
 
   return {
     item,
@@ -160,4 +158,3 @@ export default function useTagDetailController(
     onDelete,
   };
 }
-

@@ -1,6 +1,6 @@
 import TodoEntity from '@/entities/TodoEntity';
 import BaseViewModel from '@/view_models/BaseViewModel';
-import TagViewModel, { createTagViewModel } from './TagViewModel';
+import TagViewModel, { createTagViewModel } from '@/view_models/tag/TagViewModel';
 
 interface TodoViewModelProps {
   id: number;
@@ -63,4 +63,3 @@ export function createTodoViewModel(entity: TodoEntity): TodoViewModel {
     tags: entity.tags.map((tag) => createTagViewModel(tag)),
   });
 }
-

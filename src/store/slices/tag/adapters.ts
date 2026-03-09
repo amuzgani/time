@@ -1,4 +1,4 @@
-import TagViewModel from '@/view_models/todo/TagViewModel';
+import TagViewModel from '@/view_models/tag/TagViewModel';
 import type { TagStateItem } from './types';
 
 export function toTagStateItem(model: TagViewModel): TagStateItem {
@@ -16,4 +16,3 @@ export function toTagViewModel(item: TagStateItem): TagViewModel {
     color: item.color,
   });
 }
-

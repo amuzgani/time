@@ -5,8 +5,8 @@ import { toTagStateItem, toTagViewModel } from '@/store/slices/tag/adapters';
 import { selectAllTagItems } from '@/store/slices/tag/selectors';
 import { removeTagById, setAllTags, upsertTag } from '@/store/slices/tag/slice';
 import { LOAD_STATES, type LoadState } from '@/types/load_state';
-import type TagViewModel from '@/view_models/todo/TagViewModel';
-import { createTagViewModel } from '@/view_models/todo/TagViewModel';
+import type TagViewModel from '@/view_models/tag/TagViewModel';
+import { createTagViewModel } from '@/view_models/tag/TagViewModel';
 
 interface UseTagListControllerReturn {
   items: TagViewModel[];
@@ -160,4 +160,3 @@ export default function useTagListController(): UseTagListControllerReturn {
     onDelete,
   };
 }
-

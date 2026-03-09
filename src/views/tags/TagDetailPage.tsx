@@ -1,28 +1,8 @@
-import { ROUTE_PATHS } from "@/constants/route_paths";
-import useTagDetailController from "@/views/tags/hooks/useTagDetailController";
-import { useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  ActionsRow,
-  AlertError,
-  ButtonGhost,
-  Card,
-  ColorDot,
-  Field,
-  FieldLabel,
-  Form,
-  Header,
-  HeaderSubtitle,
-  HeaderTitle,
-  HeaderTitles,
-  OutlineDangerButton,
-  Page,
-  PageInner,
-  PreviewRow,
-  PrimaryButton,
-  SkeletonCard,
-  TextInput,
-} from "./TagDetailPage.styles";
+import { ROUTE_PATHS } from '@/constants/route_paths';
+import useTagDetailController from '@/views/tags/hooks/useTagDetailController';
+import { useCallback, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import S from './TagDetailPage.styles';
 
 export default function TagDetailPage(): React.ReactNode {
   const params = useParams();
@@ -57,84 +37,90 @@ export default function TagDetailPage(): React.ReactNode {
     if (!item) return;
 
     const formData = new FormData(event.currentTarget);
-    const name = String(formData.get("name") ?? "").trim();
-    const color = String(formData.get("color") ?? "").trim();
+    const name = String(formData.get('name') ?? '').trim();
+    const color = String(formData.get('color') ?? '').trim();
 
     if (!name || !color) return;
 
     await onSave({ name, color });
   };
 
+  const handleDelete = useCallback(async () => {
+    const isDeleted = await onDelete();
+
+    if (isDeleted) {
+      navigate(ROUTE_PATHS.TAG_LIST);
+    }
+  }, [navigate, onDelete]);
+
   return (
-    <Page>
-      <PageInner>
-        <Header>
-          <HeaderTitles>
-            <HeaderTitle>태그 상세</HeaderTitle>
-            <HeaderSubtitle>태그 이름과 색상을 관리합니다</HeaderSubtitle>
-          </HeaderTitles>
+    <S.Page>
+      <S.PageInner>
+        <S.Header>
+          <S.HeaderTitles>
+            <S.HeaderTitle>태그 상세</S.HeaderTitle>
+            <S.HeaderSubtitle>태그 이름과 색상을 관리합니다</S.HeaderSubtitle>
+          </S.HeaderTitles>
           <Link to={ROUTE_PATHS.TAG_LIST}>
-            <ButtonGhost type="button">목록으로</ButtonGhost>
+            <S.ButtonGhost type="button">목록으로</S.ButtonGhost>
           </Link>
-        </Header>
+        </S.Header>
 
         {isInitialLoading ? (
-          <SkeletonCard />
+          <S.SkeletonCard />
         ) : errorMessage ? (
-          <AlertError>
+          <S.AlertError>
             <span>{errorMessage}</span>
             <button type="button" onClick={onRetry}>
               다시 시도
             </button>
-          </AlertError>
+          </S.AlertError>
         ) : !item ? (
-          <Card>
+          <S.Card>
             <p>해당 태그를 찾을 수 없습니다.</p>
             <Link to={ROUTE_PATHS.TAG_LIST}>목록으로</Link>
-          </Card>
+          </S.Card>
         ) : (
-          <Card>
-            <Form onSubmit={handleSubmit}>
-              <Field>
-                <FieldLabel>이름</FieldLabel>
-                <TextInput
+          <S.Card>
+            <S.Form onSubmit={handleSubmit}>
+              <S.Field>
+                <S.FieldLabel>이름</S.FieldLabel>
+                <S.TextInput
                   name="name"
                   defaultValue={item.name}
                   disabled={isActionLoading}
                 />
-              </Field>
-              <Field>
-                <FieldLabel>색상</FieldLabel>
-                <TextInput
+              </S.Field>
+              <S.Field>
+                <S.FieldLabel>색상</S.FieldLabel>
+                <S.TextInput
                   name="color"
                   defaultValue={item.color}
                   disabled={isActionLoading}
                 />
-              </Field>
+              </S.Field>
 
-              <PreviewRow>
-                <ColorDot $color={item.color} />
+              <S.PreviewRow>
+                <S.ColorDot $color={item.color} />
                 <span>{item.name}</span>
-              </PreviewRow>
+              </S.PreviewRow>
 
-              <ActionsRow>
-                <PrimaryButton type="submit" disabled={isActionLoading}>
+              <S.ActionsRow>
+                <S.PrimaryButton type="submit" disabled={isActionLoading}>
                   저장
-                </PrimaryButton>
-                <OutlineDangerButton
+                </S.PrimaryButton>
+                <S.OutlineDangerButton
                   type="button"
                   disabled={isActionLoading}
-                  onClick={() => {
-                    void onDelete();
-                  }}
+                  onClick={handleDelete}
                 >
                   삭제
-                </OutlineDangerButton>
-              </ActionsRow>
-            </Form>
-          </Card>
+                </S.OutlineDangerButton>
+              </S.ActionsRow>
+            </S.Form>
+          </S.Card>
         )}
-      </PageInner>
-    </Page>
+      </S.PageInner>
+    </S.Page>
   );
 }
