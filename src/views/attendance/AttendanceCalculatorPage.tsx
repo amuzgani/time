@@ -1,6 +1,6 @@
-import useAttendanceCalculatorController from '@/views/attendance/hooks/useAttendanceCalculatorController';
-import { useCallback } from 'react';
-import S from './AttendanceCalculatorPage.styles';
+import useAttendanceCalculatorController from "@/views/attendance/hooks/useAttendanceCalculatorController";
+import { useCallback } from "react";
+import S from "./AttendanceCalculatorPage.styles";
 
 export default function AttendanceCalculatorPage(): React.ReactNode {
   const {
@@ -13,19 +13,21 @@ export default function AttendanceCalculatorPage(): React.ReactNode {
     summary,
   } = useAttendanceCalculatorController();
 
-  const handleAnnualChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      onAnnualLeaveInputChange(event.target.value);
-    },
-    [onAnnualLeaveInputChange],
-  );
+  const handleAnnualChange: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      (event) => {
+        onAnnualLeaveInputChange(event.target.value);
+      },
+      [onAnnualLeaveInputChange],
+    );
 
-  const handleHalfChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      onHalfDayInputChange(event.target.value);
-    },
-    [onHalfDayInputChange],
-  );
+  const handleHalfChange: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      (event) => {
+        onHalfDayInputChange(event.target.value);
+      },
+      [onHalfDayInputChange],
+    );
 
   const handleQuarterHalfChange: React.ChangeEventHandler<HTMLInputElement> =
     useCallback(
@@ -49,7 +51,7 @@ export default function AttendanceCalculatorPage(): React.ReactNode {
           <S.CardTitle>잔여 휴가 입력</S.CardTitle>
 
           <S.FieldRow>
-            <S.FieldLabel htmlFor="annual-leave">연차 개수</S.FieldLabel>
+            <S.FieldLabel htmlFor="annual-leave">출근 수</S.FieldLabel>
             <S.FieldHint>1일당 9시간</S.FieldHint>
             <S.NumberInput
               id="annual-leave"
@@ -64,7 +66,7 @@ export default function AttendanceCalculatorPage(): React.ReactNode {
           </S.FieldRow>
 
           <S.FieldRow>
-            <S.FieldLabel htmlFor="half-day">반차 개수</S.FieldLabel>
+            <S.FieldLabel htmlFor="half-day">반차 출근 수</S.FieldLabel>
             <S.FieldHint>1회당 4시간</S.FieldHint>
             <S.NumberInput
               id="half-day"
@@ -79,7 +81,9 @@ export default function AttendanceCalculatorPage(): React.ReactNode {
           </S.FieldRow>
 
           <S.FieldRow>
-            <S.FieldLabel htmlFor="quarter-half-day">반반차 개수</S.FieldLabel>
+            <S.FieldLabel htmlFor="quarter-half-day">
+              반반차 출근 수
+            </S.FieldLabel>
             <S.FieldHint>1회당 2시간</S.FieldHint>
             <S.NumberInput
               id="quarter-half-day"
@@ -108,7 +112,9 @@ export default function AttendanceCalculatorPage(): React.ReactNode {
                 <span>{summary.halfDayHours}시간</span>
               </S.BreakdownItem>
               <S.BreakdownItem>
-                <span>반반차 구간 ({summary.quarterHalfDayCount}회 × 2시간)</span>
+                <span>
+                  반반차 구간 ({summary.quarterHalfDayCount}회 × 2시간)
+                </span>
                 <span>{summary.quarterHalfDayHours}시간</span>
               </S.BreakdownItem>
             </S.BreakdownList>
